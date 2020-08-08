@@ -9,6 +9,9 @@
       "jasmine",
       "jasminewd2",
       "node"
+    ],
+    "typeRoots": [
+      "../src/typings.d.ts"
     ]
   }
 }
