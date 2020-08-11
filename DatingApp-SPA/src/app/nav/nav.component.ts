@@ -11,7 +11,7 @@ import { AlertifyService } from '../_services/alertify.service';
 export class NavComponent implements OnInit {
 
   model: any = {}; // For storing login info.
-  constructor(private authService: AuthService, private alertify: AlertifyService) { }
+  constructor(public authService: AuthService, private alertify: AlertifyService) { }
 
   // tslint:disable-next-line: typedef
   ngOnInit() {

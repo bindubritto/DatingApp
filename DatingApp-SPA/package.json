@@ -22,7 +22,9 @@
     "@auth0/angular-jwt": "^5.0.1",
     "alertifyjs": "^1.13.1",
     "bootstrap": "^4.5.0",
+    "bootswatch": "^4.5.2",
     "font-awesome": "^4.7.0",
+    "ngx-bootstrap": "^5.6.1",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
