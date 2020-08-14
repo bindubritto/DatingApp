@@ -14,19 +14,21 @@ export class MemberDetailComponent implements OnInit {
 
   constructor(private userService: UserService, private alertify: AlertifyService, private route: ActivatedRoute) { }
 
-  // tslint:disable-next-line: typedef
-  ngOnInit() {
-    this.loadUser();
-  }
 
-  // tslint:disable-next-line: typedef
-  loadUser() {
-    // this.route.snapshot.params['id'] will retrieve the parameter from URL and pass as getUser parameter.
-    this.userService.getUser(+this.route.snapshot.params['id']).subscribe((user: User) => {
-      this.user = user;
-    }, error => {
-      this.alertify.error(error);
+  ngOnInit() {
+    this.route.data.subscribe(data => {
+      this.user = data['user'];
     });
   }
+
+  // // tslint:disable-next-line: typedef
+  // loadUser() {
+  //   // this.route.snapshot.params['id'] will retrieve the parameter from URL and pass as getUser parameter.
+  //   this.userService.getUser(+this.route.snapshot.params['id']).subscribe((user: User) => {
+  //     this.user = user;
+  //   }, error => {
+  //     this.alertify.error(error);
+  //   });
+  // }
 
 }
