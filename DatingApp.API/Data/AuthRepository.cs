@@ -14,7 +14,7 @@ namespace DatingApp.API.Data
         }
         public async Task<User> Login(string username, string password)
         {   // If we return null from login method, then controller will return 401 unauthorised user. 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == username);
+            var user = await _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(x => x.UserName == username);
 
             if(user == null)
                 return null; // Controller will return 401, unauthorised access. 

@@ -58,14 +58,14 @@ namespace DatingApp.API.Controllers
             if (userFromRepo == null)
                 return NotFound($"Could not find user with an ID of {userId}");
 
-            if(currentUserId != userFromRepo.Id)
+            if (currentUserId != userFromRepo.Id)
                 return Unauthorized();
 
             var file = photoForCreationDto.File;
 
             var uploadResult = new ImageUploadResult();
 
-            if(file.Length > 0)
+            if (file.Length > 0)
             {
                 using (var stream = file.OpenReadStream())
                 {
@@ -91,12 +91,12 @@ namespace DatingApp.API.Controllers
 
             userFromRepo.Photos.Add(photo);
 
-            
+
             if (await _repo.SaveAll())
             {
                 var photoToReturn = _mapper.Map<PhotoForReturnDto>(photo);
 
-                return CreatedAtRoute("GetPhoto", new { id = photo.Id}, photoToReturn);
+                return CreatedAtRoute("GetPhoto", new { id = photo.Id }, photoToReturn);
             }
 
             return BadRequest("Could not add the photo");
@@ -112,11 +112,11 @@ namespace DatingApp.API.Controllers
             if (userFromRepo == null)
                 return NotFound($"Could not find user with an ID of {userId}");
 
-            if(currentUserId != userFromRepo.Id)
+            if (currentUserId != userFromRepo.Id)
                 return Unauthorized();
 
             // Photo exists or not. 
-            if(!userFromRepo.Photos.Any(p => p.Id == id))
+            if (!userFromRepo.Photos.Any(p => p.Id == id))
                 return Unauthorized();
 
             var photoFromRepo = await _repo.GetPhoto(id);
@@ -128,7 +128,7 @@ namespace DatingApp.API.Controllers
             currentMainPhoto.IsMain = false;
             photoFromRepo.IsMain = true;
 
-            if(await _repo.SaveAll())
+            if (await _repo.SaveAll())
                 return NoContent();
 
             return BadRequest("Could not set photo to main");
@@ -136,5 +136,48 @@ namespace DatingApp.API.Controllers
         }
 
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhoto(int userId, int id)
+        {
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userFromRepo = await _repo.GetUser(userId);
+
+            if (userFromRepo == null)
+                return NotFound($"Could not find user with an ID of {userId}");
+
+            if (currentUserId != userFromRepo.Id)
+                return Unauthorized();
+
+            // Photo exists or not. 
+            if (!userFromRepo.Photos.Any(p => p.Id == id))
+                return Unauthorized();
+
+            var photoFromRepo = await _repo.GetPhoto(id);
+
+            if (photoFromRepo.IsMain)
+                return BadRequest("You can't delete your main photo");
+
+            if (photoFromRepo.PublicId != null)
+            {
+                var deletionParams = new DeletionParams(photoFromRepo.PublicId);
+                var deletionResult = _cloudinary.Destroy(deletionParams);
+
+                if (deletionResult.Result == "ok")
+                {
+                    _repo.Delete(photoFromRepo);
+                }
+            }
+            
+            // If photo don't come from cloudinary, then it don't have any public id. 
+            if (photoFromRepo.PublicId == null)
+            {
+                _repo.Delete(photoFromRepo);
+            }
+
+            if (await _repo.SaveAll())
+                return Ok();
+
+            return BadRequest("Failed to delete the photo");
+        }
     }
 }
